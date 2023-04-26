@@ -1,14 +1,14 @@
-using Serilog;
+//using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 //Registering SeriLog
-Log.Logger = new LoggerConfiguration().MinimumLevel.Debug().WriteTo.File
-    ("log/VillaLogs.txt", rollingInterval: RollingInterval.Day).CreateLogger();
+//Log.Logger = new LoggerConfiguration().MinimumLevel.Debug().WriteTo.File
+//    ("log/VillaLogs.txt", rollingInterval: RollingInterval.Day).CreateLogger();
 //overriding default Logger from .Net Core
-builder.Host.UseSerilog();
+//builder.Host.UseSerilog();
 
 builder.Services.AddControllers(option =>{
 option.ReturnHttpNotAcceptable=true;
