@@ -13,8 +13,10 @@ using System.Net;
 
 namespace MagicVilla_VillaAPI.Controllers
 {
-    [Route("api/VillaAPI")]
+    [Route("api/v{version:apiVersion}/VillaAPI")]
     [ApiController]
+    [ApiVersion("1.0")]
+    //[ApiVersion("2.0")]
     public class VillaAPIController : ControllerBase
     {
 
@@ -32,14 +34,26 @@ namespace MagicVilla_VillaAPI.Controllers
         }
 
         [HttpGet]
+        [ApiVersion("1.0")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<APIResponse>> GetVillas()
+        [ResponseCache(Duration =30)] //it will hit first time and cache the data but for next 30s it will not hit, will use the same cache data
+        public async Task<ActionResult<APIResponse>> GetVillas([FromQuery(Name ="Filter Occupancy")]int ? occupancy)
         {
             _logger.LogInformation("Retrieve all the Villas");
             try 
             {
-                IEnumerable<Villa> villaList = await _dbVilla.GetAllAsync();
+                IEnumerable<Villa> villaList;
+                //for filtering
+                if (occupancy > 0)
+                {
+                    villaList = await _dbVilla.GetAllAsync(u => u.Occupancy == occupancy);
+                }
+                else 
+                {
+                    villaList = await _dbVilla.GetAllAsync();
+                }
+                 
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.Result = _mapper.Map<List<VillaDTO>>(villaList);
                 return Ok(_response);
@@ -56,6 +70,7 @@ namespace MagicVilla_VillaAPI.Controllers
 
 
         [HttpGet("{id:int}", Name = "GetVilla")]
+        [ApiVersion("1.0")]
         [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -97,6 +112,7 @@ namespace MagicVilla_VillaAPI.Controllers
 
 
         [HttpPost]
+        [ApiVersion("1.0")]
         [Authorize(Roles ="Admin")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -156,6 +172,7 @@ namespace MagicVilla_VillaAPI.Controllers
 
 
         [HttpDelete("{id:int}", Name = "DeleteVilla")]
+        [ApiVersion("1.0")]
         [Authorize(Roles ="CUSTOM")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -194,6 +211,7 @@ namespace MagicVilla_VillaAPI.Controllers
 
 
         [HttpPut("{id:int}", Name = "UpdateVilla")]
+        [ApiVersion("1.0")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -256,6 +274,7 @@ namespace MagicVilla_VillaAPI.Controllers
         }
 
         [HttpPatch("{id:int}", Name = "UpdatePartialVilla")]
+        [ApiVersion("1.0")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]

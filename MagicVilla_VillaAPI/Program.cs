@@ -33,10 +33,14 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddAutoMapper(typeof(MappingConfig));
 
+//caching
+builder.Services.AddResponseCaching();
+
 //API versioning
 builder.Services.AddApiVersioning(options => { 
     options.AssumeDefaultVersionWhenUnspecified=true;
     options.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(1, 0);//ApiVersion(MajorVersion,MinorVersion)
+    options.ReportApiVersions = true;
 });
 
 var key = builder.Configuration.GetValue<string>("APISettings:Secret");
