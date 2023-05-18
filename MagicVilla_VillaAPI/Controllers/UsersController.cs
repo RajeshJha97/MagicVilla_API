@@ -23,7 +23,7 @@ namespace MagicVilla_VillaAPI.Controllers
         public async Task<IActionResult> Login([FromBody] LoginRequestDTO model)
         {
             var loginResponse=await _userRepo.Login(model);
-            if (loginResponse == null ||string.IsNullOrEmpty(loginResponse.Token)) 
+            if (loginResponse.User == null ||string.IsNullOrEmpty(loginResponse.Token)) 
             {
                 _response.ErrorMessage = new List<string> { "Username and password is incorrect"};
                 _response.StatusCode=HttpStatusCode.BadRequest;
