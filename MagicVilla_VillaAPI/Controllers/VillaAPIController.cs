@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
+using System.Text.Json;
 
 namespace MagicVilla_VillaAPI.Controllers
 {
@@ -38,7 +39,7 @@ namespace MagicVilla_VillaAPI.Controllers
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ResponseCache(Duration =30)] //it will hit first time and cache the data but for next 30s it will not hit, will use the same cache data
-        public async Task<ActionResult<APIResponse>> GetVillas([FromQuery(Name ="Filter Occupancy")]int ? occupancy,int pageSize=2,int pageNumber=3)
+        public async Task<ActionResult<APIResponse>> GetVillas([FromQuery(Name ="Filter Occupancy")]int ? occupancy,int pageSize=0,int pageNumber=3)
         {
             _logger.LogInformation("Retrieve all the Villas");
             try 
@@ -53,6 +54,14 @@ namespace MagicVilla_VillaAPI.Controllers
                 {
                     villaList = await _dbVilla.GetAllAsync(pageSize: pageSize, pageNumber: pageNumber);
                 }
+
+                Pagination pagination = new Pagination()
+                {
+                    PageNumber = pageNumber,
+                    PageSize = pageSize,
+                };
+                //Adding pagination in response header
+                Response.Headers.Add("X-Pagination",JsonSerializer.Serialize(pagination));
                  
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.Result = _mapper.Map<List<VillaDTO>>(villaList);
