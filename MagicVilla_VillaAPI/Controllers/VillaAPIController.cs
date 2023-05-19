@@ -38,7 +38,7 @@ namespace MagicVilla_VillaAPI.Controllers
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ResponseCache(Duration =30)] //it will hit first time and cache the data but for next 30s it will not hit, will use the same cache data
-        public async Task<ActionResult<APIResponse>> GetVillas([FromQuery(Name ="Filter Occupancy")]int ? occupancy)
+        public async Task<ActionResult<APIResponse>> GetVillas([FromQuery(Name ="Filter Occupancy")]int ? occupancy,int pageSize=2,int pageNumber=3)
         {
             _logger.LogInformation("Retrieve all the Villas");
             try 
@@ -47,11 +47,11 @@ namespace MagicVilla_VillaAPI.Controllers
                 //for filtering
                 if (occupancy > 0)
                 {
-                    villaList = await _dbVilla.GetAllAsync(u => u.Occupancy == occupancy);
+                    villaList = await _dbVilla.GetAllAsync(u => u.Occupancy == occupancy,pageSize:pageSize,pageNumber:pageNumber);
                 }
                 else 
                 {
-                    villaList = await _dbVilla.GetAllAsync();
+                    villaList = await _dbVilla.GetAllAsync(pageSize: pageSize, pageNumber: pageNumber);
                 }
                  
                 _response.StatusCode = HttpStatusCode.OK;

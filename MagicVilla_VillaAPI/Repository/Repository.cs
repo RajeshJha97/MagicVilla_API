@@ -22,12 +22,27 @@ namespace MagicVilla_VillaAPI.Repository
             await SaveAsync();
         }
 
-        public async Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null)
+        public async Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, int pageSize = 3, int pageNumber = 1)
         {
             IQueryable<T> query = dbSet;
             if (filter != null)
             {
                 query = query.Where(filter);
+            }
+            if (pageSize > 0)
+            {
+                if (pageSize > 100)
+                {
+                    pageSize = 100;
+                }
+                //pagination
+                /*
+                 --> pageSize: how many records want to display on the page.
+                 suppose page size==5 and we want data on page number which means first 10 record we to skip
+                 query=query.Skip(5*(3-1)).Take(5) -->skip first 10 records and display next 5 records on page 3                 
+                 */
+
+                query=query.Skip(pageSize*(pageNumber-1)).Take(pageSize);
             }
             return await query.ToListAsync();
         }
